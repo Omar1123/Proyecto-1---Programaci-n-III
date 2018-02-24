@@ -1,0 +1,167 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui">
+
+    <f:view contentType="text/html">
+        <h:head>
+            <f:facet name="first">
+                <meta content='text/html; charset=UTF-8' http-equiv="Content-Type"/>
+                <title>Tiendita S.A.</title>
+            </f:facet>
+        </h:head>
+
+        <h:body>
+
+            <p:layout fullPage="true">
+
+                <p:layoutUnit position="north" size="100" resizable="true" closable="true" collapsible="true">
+                    <h:form>
+                    <p:panel style="width: 100%;height: 100%;background: steelblue">
+                        <div align="right"> 
+                            <p:outputLabel style="color: white" value="Tiendita S.A."/>
+                        </div>     
+                    </p:panel>
+                    </h:form>
+                </p:layoutUnit>
+
+                <p:layoutUnit position="south" size="100" closable="true" collapsible="true">
+                    <h:form>
+                    <p:panel style="width: 100%;height: 100%;background: steelblue">
+                        <div align="center"> 
+                            <p:outputLabel style="color: white;font-size: 10px;" value="Copyright © Todos los Derechos Reservados "/>
+                            <br/>
+                            <p:outputLabel style="color: white;font-size: 10px;" value="Tiendita S.A."/>
+                        </div>
+                    </p:panel>
+                    </h:form>
+                </p:layoutUnit>
+
+                <p:layoutUnit position="west" header="Menu" size="175" collapsible="true">
+                    <h:form>
+                        <p:menu>
+                            <p:submenu label="Procesos">
+                                <p:menuitem value="Vender" outcome="vender" />
+                                <p:menuitem value="Consulta Saldos" outcome="verSaldo" />
+                                <p:menuitem value="Cierre Diario De Caja" outcome="cierreDeCaja" />
+                            </p:submenu>
+
+                        </p:menu>
+                    </h:form>
+                </p:layoutUnit>
+
+                <p:layoutUnit position="center">
+                    <h:form>
+                        <p:growl autoUpdate="true" showDetail="true" showSummary="false"/>
+                        <p:breadCrumb>
+                            <p:menuitem value="Ventas" url="#" />
+                            <p:menuitem value="Ventas" url="#" />
+                        </p:breadCrumb>
+                       </h:form> 
+                    <br/>
+
+                        <p:panel style="width: 100%;height: auto;">
+                            <h:form id="formAdd" >
+                            <p:panelGrid columns="2" style="width: 100%;height: auto;">
+
+                                <p:outputLabel value="Forma de pago: "/>
+                                <p:selectOneMenu id="tipoPago" value="#{ventaBean.tipoPago}" style="width: 200px;" required="true" requiredMessage="Seleccione dulce">
+                                    <f:selectItem itemLabel="Efectivo" itemValue="Efectivo"/>
+                                    <f:selectItem itemLabel="Credito" itemValue="Credito"/>
+                                    <f:selectItem itemLabel="Cheque" itemValue="Cheque"/>
+                                    <p:ajax update="formAdd" event="change"/>
+                                </p:selectOneMenu>
+                                
+                                <p:outputLabel value="Nit: "/>
+                                <p:inputText value="#{ventaBean.venta.noDocumentClient}" required="true"/>
+                                
+                                
+                                <p:outputLabel value="Nombre de cliente: "/>
+                                <p:inputText value="#{ventaBean.venta.clientName}" required="true"/>
+                                
+                                <p:outputLabel value="Apellido de cliente: "/>
+                                <p:inputText value="#{ventaBean.venta.lastNameClient}" required="true"/>
+
+                                <p:outputLabel value="Nombre de producto: "/>
+                                <p:inputText value="#{ventaBean.venta.productName}" required="true"/>
+
+                                <p:outputLabel value="Precio por unidad: "/>
+                                <p:inputText value="#{ventaBean.venta.price}" required="true"/>
+
+                                <p:outputLabel value="Cantidad: "/>
+                                <p:inputText value="#{ventaBean.venta.amount}" required="true"/>
+                                
+                                <p:outputLabel rendered="#{ventaBean.tipoPago=='Cheque'}" value="No. Cheque "/>
+                                <p:inputText rendered="#{ventaBean.tipoPago=='Cheque'}" value="#{ventaBean.venta.noCheck}" required="true"/>
+                                
+                                <p:outputLabel rendered="#{ventaBean.tipoPago=='Cheque'}" value="Banco Cheque: "/>
+                                <p:inputText rendered="#{ventaBean.tipoPago=='Cheque'}" value="#{ventaBean.venta.bankCheck}" required="true"/>
+                            </p:panelGrid>
+                            <p:separator/>
+                            <div align="center">
+                                <p:commandButton update="formAdd,:formPrincipal" actionListener="#{ventaBean.agregarVenta()}" value="Agregar"/>
+                             </div>
+                            </h:form>
+                        </p:panel>
+
+                    <p:separator/>
+                    <p:panel style="width: 100%;height: 50%;">
+
+                       <h:form id="formPrincipal">
+
+                           <p:dataTable var="venta" value="#{ventaBean.ventas}" widgetVar="ventaTable"
+                                        emptyMessage="No hay ventas para mostrar" filteredValue="#{ventaBean.ventasFilt}">
+
+                            <f:facet name="header">
+                                <div align="center"> 
+                                    <p:outputLabel value="Listado de ventas"/>
+                                </div>
+                                <p:outputPanel>
+                                    <div align="right">    
+                                        <h:outputText value="Buscar:" />
+                                        <p:inputText id="globalFilter" onkeyup="PF('ventaTable').filter()" style="width:150px" placeholder="Ingrese valor"/>
+                                    </div>
+                                </p:outputPanel>
+                            </f:facet>
+
+                               <p:column filterBy="#{venta.clientName}" headerText="Nombre Cliente" footerText="Nombre Cliente" filterMatchMode="contains">
+                                   <h:outputText style="float: left" value="#{venta.clientName}" />
+                            </p:column>
+
+                               <p:column filterBy="#{venta.productName}" headerText="Nombre Producto" footerText="Nombre Producto" filterMatchMode="contains">
+                                   <h:outputText style="float: left" value="#{venta.productName}" />
+                            </p:column>
+
+                               <p:column filterBy="#{venta.price}" headerText="Precio" footerText="Precio" filterMatchMode="contains">
+                                <h:outputText style="float: right" value="#{venta.price}" />
+                            </p:column>
+
+                               <p:column filterBy="#{venta.amount}" headerText="Cantidad" footerText="Cantidad" filterMatchMode="contains">
+                                <h:outputText style="float: right" value="#{venta.amount}" />
+                            </p:column>
+                               
+                               <p:column filterBy="#{venta.total}" headerText="Total" footerText="Total" filterMatchMode="contains">
+                                   <h:outputText style="float: right" value="#{venta.total}" />
+                            </p:column>
+
+                               <p:column filterBy="#{venta.dateTime}" headerText="Fecha" footerText="Fecha" filterMatchMode="contains">
+                                <h:outputText style="float: right" value="#{venta.dateTime}" />
+                            </p:column>
+                               
+
+                        </p:dataTable>
+                    </h:form>
+
+                    </p:panel>
+
+                </p:layoutUnit>
+
+            </p:layout>
+
+        </h:body>
+
+    </f:view>
+</html>
+
